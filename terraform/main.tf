@@ -82,7 +82,7 @@ resource "docker_container" "adminer" {
 # APPLICATION Node.js
 # ============================================
 resource "docker_image" "app" {
-  name         = "${var.project_name}-api:latest"
+  name = "${var.project_name}-api:latest"
   build {
     context    = "../app"
     dockerfile = "Dockerfile"

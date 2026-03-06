@@ -23,7 +23,7 @@ output "database_url" {
 
 output "endpoints" {
   description = "Endpoints disponibles"
-  value       = {
+  value = {
     api_health = "http://localhost:${var.api_port}/health"
     api_home   = "http://localhost:${var.api_port}/"
     adminer    = "http://localhost:${var.adminer_port}"
