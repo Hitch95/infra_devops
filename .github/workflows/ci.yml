@@ -1,0 +1,58 @@
+name: CI - Terraform Validation
+
+on:
+  pull_request:
+    paths:
+      - 'terraform/**'
+      - '.github/workflows/**'
+
+jobs:
+  terraform:
+    name: Terraform Validation
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+
+      - name: Setup Terraform
+        uses: hashicorp/setup-terraform@v3
+        with:
+          terraform_version: 1.5.0
+
+      - name: Terraform Format Check
+        id: fmt
+        run: terraform fmt -check -recursive -diff
+        working-directory: terraform
+
+      - name: Terraform Init
+        id: init
+        run: terraform init -backend=false
+        working-directory: terraform
+
+      - name: Terraform Validate
+        id: validate
+        run: terraform validate
+        working-directory: terraform
+
+      - name: Terraform Plan
+        id: plan
+        run: terraform plan -no-color
+        working-directory: terraform
+        continue-on-error: true
+
+      - name: Check for parse errors
+        run: |
+          echo "Checking Terraform files for syntax errors..."
+          for f in $(find terraform -name "*.tf"); do
+            echo "Validating: $f"
+            terraform fmt -check "$f" || exit 1
+          done
+
+      - name: Plan Status
+        if: steps.plan.outcome == 'failure'
+        run: exit 1
+
+      - name: Success Message
+        if: steps.plan.outcome == 'success'
+        run: echo "✅ All Terraform checks passed!"
